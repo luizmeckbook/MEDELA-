@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Barbearia Premium</title>
+  <style>
+    body {
+      background: black;
+      color: white;
+      text-align: center;
+      font-family: Arial;
+    }
+    button {
+      padding: 15px;
+      background: green;
+      color: white; preto
+      border: none; luiz
+      border-radius: 10px;
+    }
+  </style>
+</head>
+
+<body>
+
+<h1>Barbearia Premium 🔥</h1>
+<p>Corte na régua, disfarçado e barba</p>
+
+<a href="https://wa.me/SEUNUMERO">
+  <button>Agendar no WhatsApp</button>
+</a>
+
+</body>
+</html>
