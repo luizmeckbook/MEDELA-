@@ -151,7 +151,7 @@
     </section>
 
     <nav class="bottom-nav">
-        <button class="nav-item nav-active" id="nav-main-btn" onclick="navegarPrincipal()">LOGIN</button>
+        <button class="nav-item nav-active" id="nav-main-btn" onclick="botaoPrincipalMenu()">LOGIN</button>
         <button class="nav-item" id="nav-cart-btn" onclick="irPara('screen-cart')">CARRINHO<span id="cart-count" class="cart-badge">0</span></button>
         <button class="nav-item" onclick="location.reload()">SAIR</button>
     </nav>
@@ -160,30 +160,30 @@
         let carrinho = [];
         let usuarioLogado = null;
 
-        /**
-         * NOVA LÓGICA DE NAVEGAÇÃO
-         * Impede que o usuário logado volte para a tela de login ao clicar no menu.
-         */
-        function navegarPrincipal() {
+        // Função que controla o que o primeiro botão do menu faz
+        function botaoPrincipalMenu() {
             if (usuarioLogado) {
-                // Se já estiver logado, o botão sempre leva para a Home (Produtos)
-                irPara('screen-home');
+                irPara('screen-home'); // Se logado, vai para produtos
             } else {
-                // Se não estiver logado, leva para o Login
-                irPara('screen-login');
+                irPara('screen-login'); // Se não, vai para login
             }
         }
 
         function irPara(id) {
-            // Esconde todas as telas
+            // SEGURANÇA: Se o usuário estiver logado, ele NÃO PODE ir para login ou registro
+            if (usuarioLogado && (id === 'screen-login' || id === 'screen-register')) {
+                id = 'screen-home'; // Força ele a ficar na vitrine
+            }
+
+            // Esconde todas as seções
             document.querySelectorAll('.app-screen').forEach(s => s.classList.remove('active'));
-            // Remove destaque de todos os itens do menu
+            // Remove destaque do menu
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('nav-active'));
             
-            // Ativa a tela desejada
+            // Mostra a tela correta
             document.getElementById(id).classList.add('active');
             
-            // Gerencia o destaque visual no menu inferior
+            // Gerencia qual botão do menu fica verde
             if(id === 'screen-home' || id === 'screen-login' || id === 'screen-register') {
                 document.getElementById('nav-main-btn').classList.add('nav-active');
             } else if(id === 'screen-cart') {
@@ -197,38 +197,28 @@
             const idInput = document.getElementById('login-id').value;
             
             if(idInput.length > 3) {
-                // Simula a busca do usuário no "banco de dados" local
                 const userSalvo = JSON.parse(localStorage.getItem(idInput));
                 usuarioLogado = userSalvo || { nome: "Cliente", endereco: "Não informado" };
                 
-                // Atualiza o nome na tela home
+                // Muda visualmente o sistema para "Modo Logado"
                 document.getElementById('user-display').innerText = "Olá, " + usuarioLogado.nome.split(' ')[0] + "!";
-                
-                // MUDANÇA VISUAL NO MENU: De "LOGIN" para "PRODUTOS"
                 document.getElementById('nav-main-btn').innerText = "PRODUTOS";
                 
-                // Vai direto para a home
+                // Vai para a Home
                 irPara('screen-home');
             } else {
-                alert("Por favor, preencha o CPF corretamente.");
+                alert("Por favor, digite seu CPF.");
             }
         }
 
         function finalizarCadastro() {
             const cpf = document.getElementById('reg-cpf').value;
             const nome = document.getElementById('reg-nome').value;
+            if(!cpf || !nome) return alert("Preencha os dados!");
             
-            if(!cpf || !nome) return alert("CPF e Nome são obrigatórios!");
-            
-            const dados = {
-                nome: nome,
-                cpf: cpf,
-                tel: document.getElementById('reg-tel').value,
-                endereco: document.getElementById('reg-endereco').value
-            };
-            
+            const dados = { nome, cpf, endereco: document.getElementById('reg-endereco').value };
             localStorage.setItem(cpf, JSON.stringify(dados));
-            alert("Cadastro realizado com sucesso!");
+            alert("Cadastrado! Agora faça o login.");
             irPara('screen-login');
         }
 
@@ -242,30 +232,26 @@
 
         function addAoCarrinho(nome, preco) {
             if(!usuarioLogado) {
-                alert("Faça login para começar a comprar!");
+                alert("Entre na sua conta primeiro!");
                 irPara('screen-login');
                 return;
             }
             carrinho.push({ nome, preco });
             document.getElementById('cart-count').innerText = carrinho.length;
             
-            // Pequeno feedback no botão
             const btn = event.target;
-            const originalText = btn.innerText;
-            btn.innerText = "adicionado!";
-            setTimeout(() => btn.innerText = originalText, 800);
+            btn.innerText = "OK!";
+            setTimeout(() => btn.innerText = "adicionar", 600);
         }
 
         function renderizarCarrinho() {
             const list = document.getElementById('cart-list');
             const footer = document.getElementById('cart-footer');
-            
             if(carrinho.length === 0) {
-                list.innerHTML = '<p style="text-align:center; color:#999; margin-top:50px;">Seu carrinho está vazio.</p>';
+                list.innerHTML = '<p style="text-align:center; color:#999; margin-top:50px;">Carrinho vazio.</p>';
                 footer.style.display = "none";
                 return;
             }
-
             list.innerHTML = "";
             let total = 0;
             carrinho.forEach((item, index) => {
@@ -273,10 +259,9 @@
                 list.innerHTML += `
                     <div class="cart-item">
                         <div><strong>${item.nome}</strong><br><small>R$ ${item.preco.toFixed(2)}</small></div>
-                        <button onclick="removerItem(${index})" style="background:none; border:none; color:red; font-weight:bold; cursor:pointer;">Remover</button>
+                        <button onclick="removerItem(${index})" style="color:red; border:none; background:none; font-weight:bold;">X</button>
                     </div>`;
             });
-
             document.getElementById('cart-total').innerText = (total + 5).toFixed(2);
             footer.style.display = "block";
         }
@@ -288,14 +273,9 @@
         }
 
         function enviarPedido() {
-            let msg = `*NOVO PEDIDO - MEU TERÊ*\n\n`;
-            msg += `*Cliente:* ${usuarioLogado.nome}\n`;
-            msg += `*Endereço:* ${usuarioLogado.endereco}\n`;
-            msg += `----------------------------\n`;
-            carrinho.forEach(i => msg += `• ${i.nome}: R$ ${i.preco.toFixed(2)}\n`);
-            msg += `----------------------------\n`;
-            msg += `*TOTAL: R$ ${document.getElementById('cart-total').innerText}*`;
-            
+            let msg = `*MEU TERÊ - PEDIDO*\n\nCliente: ${usuarioLogado.nome}\n`;
+            carrinho.forEach(i => msg += `- ${i.nome}: R$ ${i.preco.toFixed(2)}\n`);
+            msg += `\n*TOTAL: R$ ${document.getElementById('cart-total').innerText}*`;
             window.open(`https://api.whatsapp.com/send?phone=5521977126638&text=${encodeURIComponent(msg)}`);
         }
     </script>
