@@ -129,7 +129,8 @@
             <p>Finalize sua compra</p>
         </div>
         <div class="container" id="cart-list" style="padding-bottom: 180px;">
-            </div>
+            <p style="text-align:center; color:#999; margin-top:50px;">Seu carrinho está vazio.</p>
+        </div>
         
         <div class="footer-cart" id="cart-footer" style="display:none;">
             <div style="margin-bottom:15px;">
@@ -159,22 +160,30 @@
         let carrinho = [];
         let usuarioLogado = null;
 
-        // Função de controle de navegação inteligente
+        /**
+         * NOVA LÓGICA DE NAVEGAÇÃO
+         * Impede que o usuário logado volte para a tela de login ao clicar no menu.
+         */
         function navegarPrincipal() {
             if (usuarioLogado) {
+                // Se já estiver logado, o botão sempre leva para a Home (Produtos)
                 irPara('screen-home');
             } else {
+                // Se não estiver logado, leva para o Login
                 irPara('screen-login');
             }
         }
 
         function irPara(id) {
+            // Esconde todas as telas
             document.querySelectorAll('.app-screen').forEach(s => s.classList.remove('active'));
+            // Remove destaque de todos os itens do menu
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('nav-active'));
             
+            // Ativa a tela desejada
             document.getElementById(id).classList.add('active');
             
-            // Destaca o botão correto na barra inferior
+            // Gerencia o destaque visual no menu inferior
             if(id === 'screen-home' || id === 'screen-login' || id === 'screen-register') {
                 document.getElementById('nav-main-btn').classList.add('nav-active');
             } else if(id === 'screen-cart') {
@@ -185,23 +194,31 @@
         }
 
         function executarLogin() {
-            const id = document.getElementById('login-id').value;
-            if(id.length < 3) return alert("Por favor, insira um CPF válido.");
-
-            const userSalvo = JSON.parse(localStorage.getItem(id));
-            usuarioLogado = userSalvo || { nome: "Cliente", endereco: "Não informado", tel: "2199999999" };
-
-            document.getElementById('user-display').innerText = "Olá, " + usuarioLogado.nome.split(' ')[0] + "!";
+            const idInput = document.getElementById('login-id').value;
             
-            // ATUALIZAÇÃO CRUCIAL: Muda o texto do menu para PRODUTOS e vai para a home
-            document.getElementById('nav-main-btn').innerText = "PRODUTOS";
-            irPara('screen-home');
+            if(idInput.length > 3) {
+                // Simula a busca do usuário no "banco de dados" local
+                const userSalvo = JSON.parse(localStorage.getItem(idInput));
+                usuarioLogado = userSalvo || { nome: "Cliente", endereco: "Não informado" };
+                
+                // Atualiza o nome na tela home
+                document.getElementById('user-display').innerText = "Olá, " + usuarioLogado.nome.split(' ')[0] + "!";
+                
+                // MUDANÇA VISUAL NO MENU: De "LOGIN" para "PRODUTOS"
+                document.getElementById('nav-main-btn').innerText = "PRODUTOS";
+                
+                // Vai direto para a home
+                irPara('screen-home');
+            } else {
+                alert("Por favor, preencha o CPF corretamente.");
+            }
         }
 
         function finalizarCadastro() {
             const cpf = document.getElementById('reg-cpf').value;
             const nome = document.getElementById('reg-nome').value;
-            if(!cpf || !nome) return alert("Preencha os campos obrigatórios!");
+            
+            if(!cpf || !nome) return alert("CPF e Nome são obrigatórios!");
             
             const dados = {
                 nome: nome,
@@ -209,6 +226,7 @@
                 tel: document.getElementById('reg-tel').value,
                 endereco: document.getElementById('reg-endereco').value
             };
+            
             localStorage.setItem(cpf, JSON.stringify(dados));
             alert("Cadastro realizado com sucesso!");
             irPara('screen-login');
@@ -224,17 +242,18 @@
 
         function addAoCarrinho(nome, preco) {
             if(!usuarioLogado) {
-                alert("Acesse sua conta para comprar!");
+                alert("Faça login para começar a comprar!");
                 irPara('screen-login');
                 return;
             }
             carrinho.push({ nome, preco });
             document.getElementById('cart-count').innerText = carrinho.length;
             
-            // Feedback visual no botão
+            // Pequeno feedback no botão
             const btn = event.target;
+            const originalText = btn.innerText;
             btn.innerText = "adicionado!";
-            setTimeout(() => btn.innerText = "adicionar", 1000);
+            setTimeout(() => btn.innerText = originalText, 800);
         }
 
         function renderizarCarrinho() {
@@ -258,7 +277,7 @@
                     </div>`;
             });
 
-            document.getElementById('cart-total').innerText = (total + 5).toFixed(2); // Exemplo com 5 reais de entrega
+            document.getElementById('cart-total').innerText = (total + 5).toFixed(2);
             footer.style.display = "block";
         }
 
@@ -275,10 +294,9 @@
             msg += `----------------------------\n`;
             carrinho.forEach(i => msg += `• ${i.nome}: R$ ${i.preco.toFixed(2)}\n`);
             msg += `----------------------------\n`;
-            msg += `*TOTAL C/ ENTREGA: R$ ${document.getElementById('cart-total').innerText}*`;
+            msg += `*TOTAL: R$ ${document.getElementById('cart-total').innerText}*`;
             
-            const fone = "5521977126638";
-            window.open(`https://api.whatsapp.com/send?phone=${fone}&text=${encodeURIComponent(msg)}`);
+            window.open(`https://api.whatsapp.com/send?phone=5521977126638&text=${encodeURIComponent(msg)}`);
         }
     </script>
 </body>
