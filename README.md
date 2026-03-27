@@ -22,35 +22,40 @@
         
         /* BOTÕES */
         .btn-green { background: var(--primary-green); color: white; border: none; width: 100%; padding: 16px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 15px; }
-        .btn-add { background: var(--orange-main); padding: 10px; font-size: 12px; margin-top: 10px; }
-        .btn-remove { background: #ff4444; padding: 5px 10px; border-radius: 5px; color: white; border: none; cursor: pointer; font-size: 10px; }
+        .btn-add { background: var(--orange-main); padding: 10px; font-size: 12px; margin-top: 10px; border: none; color: white; border-radius: 5px; cursor: pointer; width: 100%; }
+        .btn-remove { background: #ff4444; padding: 6px 10px; border-radius: 5px; color: white; border: none; cursor: pointer; font-size: 10px; }
 
-        /* HOME E CARRINHO */
+        /* HOME E GRID */
         .header-app { background: linear-gradient(135deg, var(--orange-main), #ff8c42); padding: 40px 20px; color: white; border-radius: 0 0 25px 25px; }
-        .market-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 20px; padding-bottom: 150px; }
+        .market-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 20px; padding-bottom: 100px; }
         .item-card { background: white; border: 1px solid #eee; border-radius: 12px; padding: 15px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .item-card img { width: 60px; height: 60px; margin-bottom: 10px; object-fit: contain; }
+        .item-card img { width: 70px; height: 70px; margin-bottom: 10px; object-fit: contain; }
+        .item-name { font-size: 13px; font-weight: bold; display: block; margin-bottom: 5px; }
+
+        /* CARRINHO */
+        .cart-container { padding: 20px; padding-bottom: 220px; }
+        .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 1px solid #eee; background: #fff; margin-bottom: 8px; border-radius: 10px; border: 1px solid #f0f0f0; }
+        .empty-cart-msg { text-align: center; padding: 50px 20px; color: #999; }
         
-        .cart-container { padding: 20px; margin-bottom: 200px; }
-        .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid #eee; background: #fff; margin-bottom: 5px; border-radius: 8px; }
-        
-        /* PAGAMENTO */
-        .payment-box { background: #f9f9f9; padding: 15px; border-radius: 10px; margin-top: 15px; border: 1px dashed #ccc; }
+        /* PAGAMENTO E FIXO */
+        .payment-box { background: #f9f9f9; padding: 15px; border-radius: 10px; margin-top: 20px; border: 1px dashed #ccc; }
         #troco-box { display: none; margin-top: 10px; }
+
+        .footer-fixed { position: fixed; bottom: 70px; background: white; width: 100%; max-width: 450px; border-top: 2px solid var(--primary-green); padding: 15px 20px; box-sizing: border-box; z-index: 90; }
 
         /* NAV */
         .bottom-nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid #eee; z-index: 100; }
-        .nav-item { font-size: 10px; color: #bbb; text-align: center; cursor: pointer; border: none; background: none; position: relative; }
+        .nav-item { font-size: 10px; color: #bbb; text-align: center; cursor: pointer; border: none; background: none; position: relative; width: 33%; }
         .nav-active { color: var(--primary-green); font-weight: bold; }
-        .badge { background: red; color: white; border-radius: 50%; padding: 2px 6px; font-size: 10px; position: absolute; top: -5px; right: -10px; }
+        .badge { background: red; color: white; border-radius: 50%; padding: 2px 6px; font-size: 10px; position: absolute; top: -5px; right: 25%; }
     </style>
 </head>
 <body>
 
     <section id="screen-login" class="app-screen active">
         <div class="container">
-            <div class="logo-area"><h1>Medela<span> Supermercado</span></h1><p>Acesse sua conta</p></div>
-            <div class="input-group"><label>CPF ou E-mail (Gmail)</label><input type="text" id="login-id" placeholder="Digite seu CPF ou Gmail"></div>
+            <div class="logo-area"><h1>Medela<span> Supermercado</span></h1><p>Entre para comprar</p></div>
+            <div class="input-group"><label>CPF ou E-mail (Gmail)</label><input type="text" id="login-id" placeholder="Digite aqui"></div>
             <div class="input-group"><label>Senha</label><input type="password" id="login-pass" placeholder="••••••••"></div>
             <button class="btn-green" onclick="executarLogin()">Entrar</button>
             <p style="text-align:center; color: var(--primary-green); font-weight:bold; cursor:pointer; margin-top:25px;" onclick="irPara('screen-register')">Novo por aqui? Cadastre-se</p>
@@ -59,61 +64,70 @@
 
     <section id="screen-register" class="app-screen">
         <div class="container">
-            <h2 style="color:var(--primary-green)">Criar Conta</h2>
-            <div class="input-group"><label>* Nome Completo</label><input type="text" id="reg-nome" placeholder="Seu nome"></div>
-            <div class="input-group"><label>* CPF</label><input type="text" id="reg-cpf" oninput="mascaraCPF(this)" placeholder="000.000.000-00"></div>
-            <div class="input-group"><label>* Telefone</label><input type="text" id="reg-tel" placeholder="(00) 00000-0000"></div>
-            <div class="input-group"><label>* Gmail</label><input type="email" id="reg-email" placeholder="seuemail@gmail.com"></div>
-            <div class="input-group"><label>* Endereço de Entrega</label><input type="text" id="reg-endereco" placeholder="Rua, Número, Bairro"></div>
-            <div class="input-group"><label>* Senha</label><input type="password" id="reg-senha" placeholder="Crie uma senha"></div>
-            <button class="btn-green" onclick="finalizarCadastro()">Concluir Cadastro</button>
-            <p style="text-align:center; cursor:pointer; font-size: 14px; margin-top: 15px;" onclick="irPara('screen-login')">Voltar ao Login</p>
+            <h2 style="color:var(--primary-green)">Cadastro Medela</h2>
+            <div class="input-group"><label>* Nome Completo</label><input type="text" id="reg-nome"></div>
+            <div class="input-group"><label>* CPF</label><input type="text" id="reg-cpf" oninput="mascaraCPF(this)"></div>
+            <div class="input-group"><label>* Telefone/WhatsApp</label><input type="text" id="reg-tel" placeholder="(00) 00000-0000"></div>
+            <div class="input-group"><label>* Gmail</label><input type="email" id="reg-email"></div>
+            <div class="input-group"><label>* Endereço Completo</label><input type="text" id="reg-endereco" placeholder="Rua, Número, Bairro"></div>
+            <div class="input-group"><label>* Senha</label><input type="password" id="reg-senha"></div>
+            <button class="btn-green" onclick="finalizarCadastro()">Criar Minha Conta</button>
+            <p style="text-align:center; cursor:pointer; margin-top:15px;" onclick="irPara('screen-login')">Voltar</p>
         </div>
     </section>
 
     <section id="screen-home" class="app-screen">
-        <header class="header-app"><h2 id="user-display">Olá!</h2><p>O que vamos comprar hoje?</p></header>
+        <header class="header-app"><h2 id="user-display">Olá!</h2><p>Escolha seus produtos abaixo:</p></header>
         <div class="market-grid">
-            <div class="item-card"><img src="https://cdn-icons-png.flaticon.com/512/1134/1134444.png"><span class="item-name">Contra Filé KG</span><strong>R$ 39,90</strong><button class="btn-green btn-add" onclick="addAoCarrinho('Contra Filé', 39.90)">Adicionar</button></div>
-            <div class="item-card"><img src="https://cdn-icons-png.flaticon.com/512/415/415733.png"><span class="item-name">Banana KG</span><strong>R$ 5,50</strong><button class="btn-green btn-add" onclick="addAoCarrinho('Banana', 5.50)">Adicionar</button></div>
-            <div class="item-card"><img src="https://cdn-icons-png.flaticon.com/512/3014/3014545.png"><span class="item-name">Pão Francês KG</span><strong>R$ 14,90</strong><button class="btn-green btn-add" onclick="addAoCarrinho('Pão Francês', 14.90)">Adicionar</button></div>
-            <div class="item-card"><img src="https://cdn-icons-png.flaticon.com/512/2674/2674486.png"><span class="item-name">Leite 1L</span><strong>R$ 6,20</strong><button class="btn-green btn-add" onclick="addAoCarrinho('Leite', 6.20)">Adicionar</button></div>
+            <div class="item-card"><img src="https://cdn-icons-png.flaticon.com/512/1134/1134444.png"><span class="item-name">Contra Filé KG</span><strong>R$ 39,90</strong><button class="btn-add" onclick="addAoCarrinho('Contra Filé', 39.90)">Adicionar</button></div>
+            <div class="item-card"><img src="https://cdn-icons-png.flaticon.com/512/415/415733.png"><span class="item-name">Banana Prata KG</span><strong>R$ 5,50</strong><button class="btn-add" onclick="addAoCarrinho('Banana Prata', 5.50)">Adicionar</button></div>
+            <div class="item-card"><img src="https://cdn-icons-png.flaticon.com/512/3014/3014545.png"><span class="item-name">Pão Francês KG</span><strong>R$ 14,90</strong><button class="btn-add" onclick="addAoCarrinho('Pão Francês', 14.90)">Adicionar</button></div>
+            <div class="item-card"><img src="https://cdn-icons-png.flaticon.com/512/2674/2674486.png"><span class="item-name">Leite Integral 1L</span><strong>R$ 6,20</strong><button class="btn-add" onclick="addAoCarrinho('Leite Integral', 6.20)">Adicionar</button></div>
+            <div class="item-card"><img src="https://cdn-icons-png.flaticon.com/512/2553/2553642.png"><span class="item-name">Detergente 500ml</span><strong>R$ 2,50</strong><button class="btn-add" onclick="addAoCarrinho('Detergente', 2.50)">Adicionar</button></div>
+            <div class="item-card"><img src="https://cdn-icons-png.flaticon.com/512/3122/3122042.png"><span class="item-name">Cerveja Lata</span><strong>R$ 4,50</strong><button class="btn-add" onclick="addAoCarrinho('Cerveja Lata', 4.50)">Adicionar</button></div>
         </div>
     </section>
 
     <section id="screen-cart" class="app-screen">
-        <header class="header-app"><h2>Carrinho</h2></header>
+        <header class="header-app"><h2>Meu Carrinho</h2><p>Revise e finalize seu pedido</p></header>
+        
         <div class="cart-container">
-            <div id="cart-list"></div>
+            <div id="cart-list">
+                <div class="empty-cart-msg">Seu carrinho está vazio.<br>Volte para a aba de produtos!</div>
+            </div>
             
-            <div class="payment-box">
-                <div class="input-group">
-                    <label>FORMA DE PAGAMENTO</label>
-                    <select id="pay-method" onchange="checkPayMethod()">
-                        <option value="Cartão de Crédito">Cartão de Crédito</option>
-                        <option value="Cartão de Débito">Cartão de Débito</option>
-                        <option value="Pix">Pix</option>
-                        <option value="Dinheiro">Dinheiro</option>
-                    </select>
+            <div id="checkout-area" style="display:none;">
+                <div class="payment-box">
+                    <div class="input-group">
+                        <label>FORMA DE PAGAMENTO</label>
+                        <select id="pay-method" onchange="checkPayMethod()">
+                            <option value="Cartão de Crédito">Cartão de Crédito</option>
+                            <option value="Cartão de Débito">Cartão de Débito</option>
+                            <option value="Pix">Pix</option>
+                            <option value="Dinheiro">Dinheiro</option>
+                        </select>
+                    </div>
+                    <div id="troco-box" class="input-group">
+                        <label>TROCO PARA QUANTO?</label>
+                        <input type="text" id="troco-valor" placeholder="Ex: 100,00">
+                    </div>
+                    <div style="margin-top:15px; border-top: 1px solid #eee; padding-top:10px;">
+                        <p style="font-size: 13px; color: #444; margin: 5px 0;">Taxa de Entrega: <strong>R$ 5,00</strong></p>
+                        <p style="font-size: 11px; color: #888;">Entregar em: <br><span id="display-address" style="color:var(--orange-main); font-weight:bold;"></span></p>
+                    </div>
                 </div>
-                <div id="troco-box" class="input-group">
-                    <label>TROCO PARA QUANTO?</label>
-                    <input type="text" id="troco-valor" placeholder="Ex: 50,00">
-                </div>
-                <p style="font-size: 13px; color: #444; margin-top: 10px;">Taxa de Entrega: <strong>R$ 5,00</strong></p>
-                <p style="font-size: 11px; color: #888;">Entregar em: <br><span id="display-address" style="color:var(--orange-main)"></span></p>
             </div>
         </div>
         
-        <div class="container" style="position: fixed; bottom: 70px; background: white; width: 100%; max-width: 450px; border-top: 2px solid var(--primary-green);">
-            <p style="font-size: 18px; margin: 10px 0;"><strong>Total: R$ <span id="cart-total">0,00</span></strong></p>
-            <button class="btn-green" onclick="enviarPedido()">✅ Finalizar Pedido no WhatsApp</button>
+        <div class="footer-fixed" id="cart-footer" style="display:none;">
+            <p style="font-size: 18px; margin: 10px 0;"><strong>Total Geral: R$ <span id="cart-total">0,00</span></strong></p>
+            <button class="btn-green" onclick="enviarPedido()">✅ Finalizar via WhatsApp</button>
         </div>
     </section>
 
     <nav class="bottom-nav">
-        <button class="nav-item nav-active" onclick="irPara('screen-home')">PRODUTOS</button>
-        <button class="nav-item" onclick="irPara('screen-cart')">CARRINHO <span id="cart-count" class="badge">0</span></button>
+        <button class="nav-item nav-active" id="nav-home" onclick="irPara('screen-home')">PRODUTOS</button>
+        <button class="nav-item" id="nav-cart" onclick="irPara('screen-cart')">CARRINHO <span id="cart-count" class="badge">0</span></button>
         <button class="nav-item" onclick="location.reload()">SAIR</button>
     </nav>
 
@@ -124,10 +138,17 @@
 
         function irPara(id) {
             document.querySelectorAll('.app-screen').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('nav-active'));
+            
             document.getElementById(id).classList.add('active');
-            if(id === 'screen-cart' && usuarioLogado) {
-                document.getElementById('display-address').innerText = usuarioLogado.endereco;
+            
+            if(id === 'screen-home') document.getElementById('nav-home').classList.add('nav-active');
+            if(id === 'screen-cart') {
+                document.getElementById('nav-cart').classList.add('nav-active');
+                if(usuarioLogado) document.getElementById('display-address').innerText = usuarioLogado.endereco;
+                atualizarInterfaceCarrinho();
             }
+            window.scrollTo(0,0);
         }
 
         function mascaraCPF(i) {
@@ -144,25 +165,20 @@
         }
 
         function finalizarCadastro() {
-            const nome = document.getElementById('reg-nome').value;
-            const cpf = document.getElementById('reg-cpf').value;
-            const tel = document.getElementById('reg-tel').value;
-            const email = document.getElementById('reg-email').value.toLowerCase();
-            const endereco = document.getElementById('reg-endereco').value;
-            const senha = document.getElementById('reg-senha').value;
+            const dados = {
+                nome: document.getElementById('reg-nome').value,
+                cpf: document.getElementById('reg-cpf').value,
+                tel: document.getElementById('reg-tel').value,
+                email: document.getElementById('reg-email').value.toLowerCase(),
+                endereco: document.getElementById('reg-endereco').value,
+                senha: document.getElementById('reg-senha').value
+            };
 
-            if(!nome || !cpf || !email || !senha) {
-                alert("Preencha os campos obrigatórios!");
-                return;
-            }
+            if(!dados.nome || !dados.cpf || !dados.email) { alert("Preencha os campos obrigatórios!"); return; }
 
-            const dados = { nome, cpf, tel, email, endereco, senha };
-            
-            // Salva por CPF e por Email para permitir login duplo
-            localStorage.setItem(cpf, JSON.stringify(dados));
-            localStorage.setItem(email, JSON.stringify(dados));
-            
-            alert("Cadastro concluído com sucesso!");
+            localStorage.setItem(dados.cpf, JSON.stringify(dados));
+            localStorage.setItem(dados.email, JSON.stringify(dados));
+            alert("Cadastro realizado com sucesso!");
             irPara('screen-login');
         }
 
@@ -173,73 +189,74 @@
 
             if (user && user.senha === senha) {
                 usuarioLogado = user;
-                document.getElementById('user-display').innerText = "Olá, " + user.nome.split(' ')[0];
+                document.getElementById('user-display').innerText = "Olá, " + user.nome.split(' ')[0] + "!";
                 irPara('screen-home');
-            } else { 
-                alert("Dados de acesso incorretos!"); 
-            }
+            } else { alert("Login ou Senha incorretos!"); }
         }
 
         function addAoCarrinho(nome, preco) {
             carrinho.push({ nome, preco });
-            atualizarInterfaceCarrinho();
+            document.getElementById('cart-count').innerText = carrinho.length;
+            // Efeito visual simples
+            const btn = event.target;
+            const original = btn.innerText;
+            btn.innerText = "✅ Adicionado";
+            btn.style.background = "#008c4a";
+            setTimeout(() => { btn.innerText = original; btn.style.background = "var(--orange-main)"; }, 800);
         }
 
         function removerDoCarrinho(index) {
             carrinho.splice(index, 1);
             atualizarInterfaceCarrinho();
+            document.getElementById('cart-count').innerText = carrinho.length;
         }
 
         function atualizarInterfaceCarrinho() {
             const list = document.getElementById('cart-list');
+            const footer = document.getElementById('cart-footer');
+            const checkout = document.getElementById('checkout-area');
             const totalText = document.getElementById('cart-total');
-            const countBadge = document.getElementById('cart-count');
             
+            if (carrinho.length === 0) {
+                list.innerHTML = '<div class="empty-cart-msg">Seu carrinho está vazio.<br>Volte para a aba de produtos!</div>';
+                footer.style.display = "none";
+                checkout.style.display = "none";
+                return;
+            }
+
             list.innerHTML = "";
             let subtotal = 0;
-
             carrinho.forEach((item, index) => {
                 subtotal += item.preco;
                 list.innerHTML += `
                     <div class="cart-item">
-                        <span>${item.nome} - R$ ${item.preco.toFixed(2)}</span>
+                        <div><strong>${item.nome}</strong><br><small>R$ ${item.preco.toFixed(2)}</small></div>
                         <button class="btn-remove" onclick="removerDoCarrinho(${index})">Remover</button>
                     </div>`;
             });
 
-            const totalGeral = carrinho.length > 0 ? subtotal + TAXA_ENTREGA : 0;
-            totalText.innerText = totalGeral.toFixed(2);
-            countBadge.innerText = carrinho.length;
+            totalText.innerText = (subtotal + TAXA_ENTREGA).toFixed(2);
+            footer.style.display = "block";
+            checkout.style.display = "block";
         }
 
         function enviarPedido() {
-            if (carrinho.length === 0) { alert("Seu carrinho está vazio!"); return; }
-
             const formaPagamento = document.getElementById('pay-method').value;
             const troco = document.getElementById('troco-valor').value;
 
             let texto = `*NOVO PEDIDO - MEDELA SUPERMERCADO*\n\n`;
             texto += `*CLIENTE:* ${usuarioLogado.nome}\n`;
-            texto += `*TEL:* ${usuarioLogado.tel}\n`;
+            texto += `*WHATSAPP:* ${usuarioLogado.tel}\n`;
             texto += `*CPF:* ${usuarioLogado.cpf}\n`;
             texto += `*ENDEREÇO:* ${usuarioLogado.endereco}\n`;
             texto += `----------------------------\n`;
-            texto += `*PRODUTOS:*\n`;
-            
-            carrinho.forEach(item => {
-                texto += `• ${item.nome}: R$ ${item.preco.toFixed(2)}\n`;
-            });
-
+            texto += `*ITENS:*\n`;
+            carrinho.forEach(item => { texto += `• ${item.nome} (R$ ${item.preco.toFixed(2)})\n`; });
             texto += `----------------------------\n`;
-            texto += `*Taxa de Entrega:* R$ 5,00\n`;
-            texto += `*TOTAL DO PEDIDO:* R$ ${document.getElementById('cart-total').innerText}\n`;
-            texto += `*FORMA DE PAGAMENTO:* ${formaPagamento}\n`;
-            
-            if(formaPagamento === 'Dinheiro' && troco) {
-                texto += `*Levar troco para:* R$ ${troco}\n`;
-            }
+            texto += `*TOTAL (C/ ENTREGA): R$ ${document.getElementById('cart-total').innerText}*\n`;
+            texto += `*PAGAMENTO:* ${formaPagamento}\n`;
+            if(formaPagamento === 'Dinheiro' && troco) texto += `*TROCO PARA:* R$ ${troco}\n`;
 
-            // Seu número: 21977126638
             const url = `https://api.whatsapp.com/send?phone=5521977126638&text=${encodeURIComponent(texto)}`;
             window.open(url, '_blank');
         }
