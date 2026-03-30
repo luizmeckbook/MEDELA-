@@ -33,7 +33,7 @@ button {
 <input id="cpf" placeholder="CPF">
 <input id="senha" type="password" placeholder="Senha">
 <button onclick="login()">Entrar</button>
-
+<p>Não tenho conta? <a href="cadastro.html">Cadastrar</a></p>
 </div>
 
 <script type="module">
