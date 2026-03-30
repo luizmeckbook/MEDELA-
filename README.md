@@ -1,153 +1,104 @@
 <!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<title>Login - Medela</title>
-
-<style>
-body { font-family: Arial; background: #f5f5f5; }
-.box {
-  max-width: 300px;
-  margin: 100px auto;
-  background: white;
-  padding: 20px;
-  border-radius: 10px;
-}
-input, button {
-  width: 100%;
-  padding: 10px;
-  margin-top: 10px;
-}
-button {
-  background: #b30000;
-  color: white;
-  border: none;
-}
-</style>
-</head>
-<body>
-
-<div class="box">
-<h2>Login</h2>
-
-<input id="cpf" placeholder="CPF">
-<input id="senha" type="password" placeholder="Senha">
-<button onclick="login()">Entrar</button>
-<p>Não tenho conta? <a href="cadastro.html">Cadastrar</a></p>
-</div>
-
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import {
-  getFirestore,
-  collection,
-  query,
-  where,
-  getDocs
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-const firebaseConfig = {
-  apiKey: "SUA_KEY",
-  authDomain: "SEU_DOMINIO",
-  projectId: "SEU_ID"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
-window.login = async () => {
-  const cpf = document.getElementById("cpf").value;
-  const senha = document.getElementById("senha").value;
-
-  const q = query(
-    collection(db, "usuarios"),
-    where("cpf", "==", cpf),
-    where("senha", "==", senha)
-  );
-
-  const res = await getDocs(q);
-
-  if (res.empty) {
-    alert("Login inválido");
-  } else {
-    localStorage.setItem("cpf", cpf);
-    window.location.href = "index.html";
-  }
-};
-</script>
-
-</body>
-</html>
-<!DOCTYPE html>
-<html>
+<html lang="pt-br">
 <head>
 <meta charset="UTF-8">
 <title>Açougue Medela</title>
 
 <style>
-body { font-family: Arial; margin: 0; background: #f5f5f5; }
+body { font-family: Arial; margin:0; background:#f5f5f5; }
 
-header {
-  background: #b30000;
-  color: white;
-  padding: 15px;
+.box {
+  max-width: 320px;
+  margin: 80px auto;
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
 }
 
-.container { padding: 15px; }
-
-.produto {
-  background: white;
-  margin: 10px 0;
-  padding: 15px;
-  border-radius: 10px;
+input, button {
+  width:100%;
+  padding:10px;
+  margin-top:10px;
 }
 
 button {
-  background: #b30000;
-  color: white;
-  padding: 10px;
-  border: none;
+  background:#b30000;
+  color:white;
+  border:none;
 }
 
-#chatBox {
-  background: #e5ddd5;
-  height: 300px;
-  overflow-y: auto;
-  padding: 10px;
+header {
+  background:#b30000;
+  color:white;
+  padding:15px;
+  text-align:center;
 }
 
-.msg { padding: 10px; margin: 5px; }
+.produto {
+  background:white;
+  margin:10px;
+  padding:10px;
+  border-radius:10px;
+}
 
-.cliente { background: #dcf8c6; text-align: right; }
-
-.admin { background: white; }
+.admin {
+  background:#111;
+  color:white;
+  padding:10px;
+}
 </style>
-
 </head>
 <body>
 
-<header>🥩 Açougue Medela</header>
+<!-- LOGIN -->
+<div id="login" class="box">
+<h2>Login</h2>
+<input id="cpfLogin" placeholder="CPF">
+<input id="senhaLogin" type="password" placeholder="Senha">
+<button onclick="login()">Entrar</button>
+<span onclick="mostrarCadastro()">Cadastrar</span>
+</div>
 
-<div class="container">
+<!-- CADASTRO -->
+<div id="cadastro" class="box" style="display:none;">
+<h2>Cadastro</h2>
+<input id="nome" placeholder="Nome completo">
+<input id="cpfCadastro" placeholder="CPF">
+<input id="rg" placeholder="Identidade">
+<input id="senhaCadastro" type="password" placeholder="Senha">
+<button onclick="cadastrar()">Criar</button>
+<span onclick="mostrarLogin()">Voltar</span>
+</div>
 
-<button onclick="sair()">Sair</button>
-
-<h2>Produtos</h2>
+<!-- APP CLIENTE -->
+<div id="app" style="display:none;">
+<header>Bem-vindo <span id="nomeUser"></span></header>
 <div id="produtos"></div>
 
-<h2>Carrinho</h2>
-<div id="carrinho"></div>
-<p id="total"></p>
-<button onclick="finalizar()">Finalizar Pedido</button>
-
-<h2>Status</h2>
-<p id="status"></p>
-
-<h2>Chat</h2>
+<h3>Chat</h3>
 <div id="chatBox"></div>
-<input id="msg" placeholder="Mensagem">
-<button onclick="enviarMensagem()">Enviar</button>
+<input id="msg">
+<button onclick="enviarMsg()">Enviar</button>
+</div>
 
+<!-- ADMIN -->
+<div id="admin" style="display:none;">
+<div class="admin">👑 PAINEL ADMIN MASTER</div>
+
+<h3>Criar Produto</h3>
+<input id="nomeProd" placeholder="Nome">
+<input id="precoProd" placeholder="Preço">
+<button onclick="criarProduto()">Adicionar</button>
+
+<h3>Produtos</h3>
+<div id="listaAdmin"></div>
+
+<h3>Usuários</h3>
+<div id="usuarios"></div>
+
+<h3>Chat</h3>
+<div id="chatAdmin"></div>
 </div>
 
 <script type="module">
@@ -155,12 +106,11 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebas
 import {
   getFirestore,
   collection,
-  getDocs,
   addDoc,
-  onSnapshot,
-  query,
-  where,
-  orderBy
+  getDocs,
+  updateDoc,
+  deleteDoc,
+  doc
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -172,117 +122,146 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// 🔐 PROTEÇÃO
-const cpf = localStorage.getItem("cpf");
-if (!cpf) window.location.href = "login.html";
+// 🔑 ADMIN MASTER FIXO
+const MASTER_CPF = "00000000000";
+const MASTER_SENHA = "123456";
 
-window.sair = () => {
-  localStorage.removeItem("cpf");
-  window.location.href = "login.html";
+// TELAS
+window.mostrarCadastro = () => {
+  login.style.display="none";
+  cadastro.style.display="block";
 };
 
-// 🛒 CARRINHO
-let carrinho = [];
-
-window.add = (nome, preco) => {
-  carrinho.push({ nome, preco });
-  render();
+window.mostrarLogin = () => {
+  cadastro.style.display="none";
+  login.style.display="block";
 };
 
-function render() {
-  let total = 0;
-  let html = "";
-
-  carrinho.forEach(p => {
-    total += p.preco;
-    html += `<p>${p.nome} - R$${p.preco}</p>`;
+// CADASTRO
+window.cadastrar = async () => {
+  await addDoc(collection(db,"usuarios"), {
+    nome:nome.value,
+    cpf:cpfCadastro.value,
+    rg:rg.value,
+    senha:senhaCadastro.value,
+    admin:false
   });
+  alert("Criado!");
+  mostrarLogin();
+};
 
-  document.getElementById("carrinho").innerHTML = html;
-  document.getElementById("total").innerText = "Total: R$" + total;
-}
+// LOGIN
+window.login = async () => {
 
-// 📦 PRODUTOS
-async function carregarProdutos() {
-  const snap = await getDocs(collection(db, "produtos"));
-  let html = "";
+  // 👑 MASTER LOGIN
+  if(cpfLogin.value === MASTER_CPF && senhaLogin.value === MASTER_SENHA){
+    login.style.display="none";
+    admin.style.display="block";
+    carregarAdmin();
+    return;
+  }
 
-  snap.forEach(doc => {
-    let p = doc.data();
-    html += `
+  const snap = await getDocs(collection(db,"usuarios"));
+
+  snap.forEach(docu=>{
+    const u = docu.data();
+
+    if(u.cpf==cpfLogin.value && u.senha==senhaLogin.value){
+
+      nomeUser.innerText = u.nome;
+      login.style.display="none";
+
+      if(u.admin){
+        admin.style.display="block";
+        carregarAdmin();
+      } else {
+        app.style.display="block";
+        carregarProdutos();
+      }
+    }
+  });
+};
+
+// PRODUTOS
+window.criarProduto = async () => {
+  await addDoc(collection(db,"produtos"),{
+    nome:nomeProd.value,
+    preco:precoProd.value
+  });
+  carregarAdmin();
+};
+
+async function carregarProdutos(){
+  const snap = await getDocs(collection(db,"produtos"));
+  produtos.innerHTML="";
+  snap.forEach(d=>{
+    const p = d.data();
+    produtos.innerHTML += `
       <div class="produto">
-        ${p.nome} - R$${p.preco}
-        <button onclick="add('${p.nome}', ${p.preco})">+</button>
-      </div>
-    `;
+        <h3>${p.nome}</h3>
+        <p>R$ ${p.preco}</p>
+      </div>`;
   });
-
-  document.getElementById("produtos").innerHTML = html;
 }
 
-// 🧾 PEDIDO
-window.finalizar = async () => {
-  await addDoc(collection(db, "pedidos"), {
-    cpf,
-    carrinho,
-    status: "Em preparo"
+// ADMIN
+async function carregarAdmin(){
+
+  // PRODUTOS
+  const snap = await getDocs(collection(db,"produtos"));
+  listaAdmin.innerHTML="";
+  snap.forEach(d=>{
+    const p = d.data();
+    listaAdmin.innerHTML += `
+      <div>
+        ${p.nome} - ${p.preco}
+        <button onclick="del('${d.id}')">Excluir</button>
+      </div>`;
   });
 
-  alert("Pedido feito!");
+  // USUÁRIOS
+  const users = await getDocs(collection(db,"usuarios"));
+  usuarios.innerHTML="";
+  users.forEach(u=>{
+    const data = u.data();
+    usuarios.innerHTML += `
+      <div>
+        👤 ${data.nome} | CPF: ${data.cpf} | SENHA: ${data.senha}
+        <br>
+        <button onclick="tornarAdmin('${u.id}')">Tornar Admin</button>
+      </div><hr>`;
+  });
+
+  // CHAT
+  const chat = await getDocs(collection(db,"chat"));
+  chatAdmin.innerHTML="";
+  chat.forEach(c=>{
+    const m = c.data();
+    chatAdmin.innerHTML += `<p>${m.msg}</p>`;
+  });
+}
+
+// PROMOVER ADMIN
+window.tornarAdmin = async (id) => {
+  await updateDoc(doc(db,"usuarios",id),{
+    admin:true
+  });
+  alert("Agora é admin!");
+  carregarAdmin();
 };
 
-// 📡 STATUS
-onSnapshot(collection(db, "pedidos"), snap => {
-  snap.forEach(doc => {
-    let d = doc.data();
-    if (d.cpf === cpf) {
-      document.getElementById("status").innerText = d.status;
-    }
-  });
-});
-
-// 💬 CHAT
-window.enviarMensagem = async () => {
-  const texto = document.getElementById("msg").value;
-
-  if (!texto) return;
-
-  await addDoc(collection(db, "chats"), {
-    cpf,
-    mensagem: texto,
-    tipo: "cliente",
-    data: new Date()
-  });
-
-  document.getElementById("msg").value = "";
+// DELETE PRODUTO
+window.del = async (id) => {
+  await deleteDoc(doc(db,"produtos",id));
+  carregarAdmin();
 };
 
-const q = query(
-  collection(db, "chats"),
-  where("cpf", "==", cpf),
-  orderBy("data")
-);
-
-onSnapshot(q, snap => {
-  let html = "";
-
-  snap.forEach(doc => {
-    let m = doc.data();
-
-    if (m.tipo === "cliente") {
-      html += `<div class="msg cliente">${m.mensagem}</div>`;
-    } else {
-      html += `<div class="msg admin">${m.mensagem}</div>`;
-    }
+// CHAT
+window.enviarMsg = async () => {
+  await addDoc(collection(db,"chat"),{
+    msg:msg.value
   });
-
-  const box = document.getElementById("chatBox");
-  box.innerHTML = html;
-  box.scrollTop = box.scrollHeight;
-});
-
-// START
-carregarProdutos();
+};
 </script>
 
 </body>
