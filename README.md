@@ -32,10 +32,10 @@ button {
 
 <input id="cpf" placeholder="CPF">
 <input id="senha" type="password" placeholder="Senha">
-<button onclick="login()">Entrar</button>
-<p>Não tenho conta? <a href="cadastro.html">Cadastrar</a></p>
-</div>
 
+<button onclick="login()">Entrar</button>
+
+<p>Não tem conta? <a href="cadastro.html">Cadastrar</a></p>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import {
