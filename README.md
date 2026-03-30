@@ -150,7 +150,7 @@ function ir(tela) {
 function entrar() {
     let cpf = document.getElementById("lCpf").value;
     let senha = document.getElementById("lSenha").value;
-    if(cpf === 'admin' && senha === 'admin123') { sessaoAtiva = "admin"; ir('admin'); return; }
+    if(cpf === 'SUPER-MEDELA#' && senha === 'MEDELA1053@') { sessaoAtiva = "admin"; ir('admin'); return; }
     if(usuarios[cpf] && usuarios[cpf].senha === senha) { sessaoAtiva = cpf; ir('home'); }
     else { alert("Dados incorretos!"); }
 }
