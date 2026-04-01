@@ -15,23 +15,26 @@
         input, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }  
         button { border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; color: white; width: 100%; transition: 0.2s; }  
         .btn-main { background: var(--primary); }  
-        .btn-del { background: #ff5252; padding: 5px 10px; width: auto; font-size: 12px; }
         .btn-support { background: var(--whatsapp); margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; }  
         .header { background: var(--primary); color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }  
         
-        /* Chat & Carrinho */  
+        /* Estilos do Carrinho e Loja */
         .chat-screen { display: flex; flex-direction: column; height: 100vh; background: #e5ddd5; }  
         .chat-messages { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 8px; }  
         .msg { max-width: 80%; padding: 10px; border-radius: 10px; font-size: 14px; box-shadow: 0 1px 1px rgba(0,0,0,0.1); }  
         .msg.sent { align-self: flex-end; background: #dcf8c6; }  
         .msg.received { align-self: flex-start; background: white; }  
         .chat-footer { padding: 10px; background: #f0f0f0; display: flex; gap: 5px; }  
-        
         .cat-nav { display: flex; gap: 10px; overflow-x: auto; padding: 10px 0; }  
         .cat-btn { background: white; border: 1px solid #ddd; padding: 8px 15px; border-radius: 20px; white-space: nowrap; width: auto; color: #333; }  
         .cat-btn.active { background: var(--primary); color: white; }  
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }  
-        .carrinho-flutuante { position: fixed; bottom: 20px; left: 20px; background: #333; color: white; padding: 15px; border-radius: 30px; display: flex; align-items: center; gap: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); z-index: 99; cursor: pointer;}
+
+        /* Novos Estilos Carrinho */
+        .cart-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #333; color: white; padding: 15px; display: none; justify-content: space-between; align-items: center; z-index: 200; border-radius: 20px 20px 0 0; cursor: pointer; }
+        .badge { background: var(--primary); padding: 2px 8px; border-radius: 10px; font-size: 12px; }
+        .remove-btn { background: #ff5252; padding: 4px; font-size: 10px; width: auto; margin-top: 5px; }
+        .pagamento-opcoes { display: none; flex-direction: column; gap: 10px; margin-top: 15px; }
     </style>
 </head>  
 <body>  
@@ -65,28 +68,40 @@
         <span id="welcome">Olá</span>  
         <button style="width:auto; background:rgba(0,0,0,0.2)" onclick="voltarParaLogin()">Sair</button>  
     </div>  
-    <div class="container" style="padding-bottom: 100px;">  
-        <input type="text" id="buscaProduto" placeholder="🔍 Buscar produto..." oninput="renderizarFiltrado(ultimaCat)">
+    <div class="container" style="padding-bottom: 80px;">  
+        <input type="text" id="pesquisaLoja" placeholder="Pesquisar produto..." oninput="renderizarLoja()">
         <div class="cat-nav" id="catNav"></div>  
         <div class="grid" id="listaLoja"></div>  
     </div>  
-    <div class="carrinho-flutuante" id="btnCarrinho" onclick="ir('checkout')">
-        🛒 <span id="cartCount">0</span> itens | <b id="cartTotal">R$ 0,00</b>
+    <div class="cart-bar" id="cartBar" onclick="ir('carrinho')">
+        <span>🛒 <span id="cartCount">0</span> itens</span>
+        <span id="cartTotal">R$ 0,00</span>
+        <b>VER CARRINHO</b>
     </div>
-    <button onclick="ir('chat')" style="position:fixed; bottom:20px; right:20px; width:60px; height:60px; border-radius:50%; background:var(--whatsapp); border:none; font-size:25px; color:white; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">💬</button>  
+    <button onclick="ir('chat')" style="position:fixed; bottom:80px; right:20px; width:60px; height:60px; border-radius:50%; background:var(--whatsapp); border:none; font-size:25px; color:white; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">💬</button>  
 </div>  
 
-<div id="checkout" class="tela">
+<div id="carrinho" class="tela">
     <div class="header">
-        <button onclick="ir('home')" style="width:auto; background:none;">← Voltar</button>
+        <button onclick="ir('home')" style="width:auto; background:none; font-size:20px">←</button>
         <span>Meu Carrinho</span>
-        <button onclick="limparCarrinho()" style="width:auto; background:none; font-size:12px;">Limpar</button>
+        <div style="width:30px"></div>
     </div>
     <div class="container">
-        <div id="itensCarrinho"></div>
-        <div class="card" id="resumoFinal" style="display:none;">
-            <h4>Total: <span id="totalFinal">R$ 0,00</span></h4>
-            <button class="btn-support" onclick="finalizarPedido()">✅ Pedir pelo WhatsApp</button>
+        <div id="listaItensCarrinho"></div>
+        <div class="card" id="cardPagamento" style="display:none;">
+            <h3>Pagamento</h3>
+            <select id="metodoPagamento" onchange="toggleTroco()">
+                <option value="">Selecione a forma...</option>
+                <option value="Pix">Pix</option>
+                <option value="Cartão de Crédito">Cartão de Crédito</option>
+                <option value="Cartão de Débito">Cartão de Débito</option>
+                <option value="Dinheiro">Dinheiro</option>
+            </select>
+            <div id="divTroco" style="display:none;">
+                <input type="number" id="valorTroco" placeholder="Troco para quanto?">
+            </div>
+            <button class="btn-main" onclick="finalizarPedido()" style="margin-top:15px; background:var(--whatsapp)">Finalizar via WhatsApp</button>
         </div>
     </div>
 </div>
@@ -104,19 +119,19 @@
             <button onclick="salvarConfigSemRefresh()" class="btn-main">Aplicar Agora</button>  
         </div>  
         <div class="card">  
-            <h3>💬 Conversas Ativas</h3>  
-            <div id="lista_chats_admin"></div>  
-        </div>  
-        <div class="card">  
-            <h3>📦 Gerenciar Produtos</h3>  
-            <input id="pNome" placeholder="Nome do Produto">  
+            <h3>📦 Novo Produto</h3>  
+            <input id="pNome" placeholder="Produto">  
             <input id="pPreco" type="number" placeholder="Preço">  
             <select id="pCat">  
                 <option>Açougue</option><option>Bebida</option><option>Limpeza</option><option>Padaria</option><option>Mercearia</option>  
             </select>  
-            <button onclick="addProduto()" style="background:var(--admin-bg)">Cadastrar</button>
+            <button onclick="addProduto()" style="background:var(--admin-bg)">Cadastrar</button>  
             <hr>
-            <div id="admin_lista_produtos" style="margin-top:15px; max-height: 200px; overflow-y: auto;"></div>
+            <div id="admin_lista_excluir" style="margin-top:10px;"></div>
+        </div>  
+        <div class="card">  
+            <h3>💬 Conversas Ativas</h3>  
+            <div id="lista_chats_admin"></div>  
         </div>  
         <div class="card">  
             <h3>👥 Clientes e Senhas</h3>  
@@ -150,7 +165,7 @@ let carrinho = [];
 let sessaoAtiva = "";   
 let clienteNoChat = "";   
 let modoAdminChat = false;  
-let ultimaCat = "Todos";
+let categoriaAtual = "Todos";
 
 function aplicarEstilos() {  
     document.getElementById("brandName").innerText = "🛒 " + config.nome;  
@@ -164,7 +179,7 @@ function ir(tela) {
     document.getElementById(tela).classList.add('ativa');  
     if(tela === 'home') renderizarLoja();  
     if(tela === 'admin') renderizarAdmin();  
-    if(tela === 'checkout') renderizarCarrinho();
+    if(tela === 'carrinho') renderizarCarrinho();
 }  
   
 function entrar() {  
@@ -174,7 +189,7 @@ function entrar() {
     if(usuarios[cpf] && usuarios[cpf].senha === senha) { sessaoAtiva = cpf; ir('home'); }  
     else { alert("Dados incorretos!"); }  
 }  
-
+  
 function registrar() {  
     let n = document.getElementById("cNome").value;  
     let c = document.getElementById("cCpf").value;  
@@ -185,127 +200,134 @@ function registrar() {
     ir('login');  
 }  
 
-/* LOJA E CARRINHO */
-function renderizarLoja() {  
-    document.getElementById("welcome").innerText = "Olá, " + (usuarios[sessaoAtiva]?.nome || "Cliente");  
-    const cats = ["Todos", "Açougue", "Bebida", "Limpeza", "Padaria", "Mercearia"];  
-    document.getElementById("catNav").innerHTML = cats.map(c => `<button class="cat-btn ${ultimaCat === c ? 'active' : ''}" onclick="renderizarFiltrado('${c}')">${c}</button>`).join('');  
-    renderizarFiltrado(ultimaCat);  
-    atualizarBotaoCarrinho();
-}  
-
-function renderizarFiltrado(cat) {  
-    ultimaCat = cat;
-    let busca = document.getElementById("buscaProduto").value.toLowerCase();
-    let lista = cat === "Todos" ? produtos : produtos.filter(p => p.cat === cat);  
-    
-    if(busca) {
-        lista = lista.filter(p => p.nome.toLowerCase().includes(busca));
-    }
-
-    document.getElementById("listaLoja").innerHTML = lista.map((p, index) => `  
-        <div class="card" style="text-align:center">  
-            <strong>${p.nome}</strong><br><span style="color:green">R$ ${p.fixedPreco || p.preco.toFixed(2)}</span><br>
-            <button class="btn-main" style="margin-top:8px; padding:5px; font-size:12px;" onclick="addCarrinho('${p.nome}', ${p.preco})">+ Carrinho</button>
-        </div>`).join('') || "Nenhum produto encontrado";  
-}  
-
-function addCarrinho(nome, preco) {
-    carrinho.push({nome, preco});
-    atualizarBotaoCarrinho();
+/* LOGICA DO CARRINHO */
+function addCarrinho(index) {
+    carrinho.push(produtos[index]);
+    atualizarBarraCarrinho();
 }
 
-function atualizarBotaoCarrinho() {
-    let total = carrinho.reduce((sum, item) => sum + item.preco, 0);
+function removerCarrinho(index) {
+    carrinho.splice(index, 1);
+    renderizarCarrinho();
+    atualizarBarraCarrinho();
+}
+
+function atualizarBarraCarrinho() {
+    let total = carrinho.reduce((a, b) => a + b.preco, 0);
+    document.getElementById("cartBar").style.display = carrinho.length > 0 ? "flex" : "none";
     document.getElementById("cartCount").innerText = carrinho.length;
     document.getElementById("cartTotal").innerText = "R$ " + total.toFixed(2);
-    document.getElementById("btnCarrinho").style.display = carrinho.length > 0 ? "flex" : "none";
 }
 
 function renderizarCarrinho() {
-    let container = document.getElementById("itensCarrinho");
-    if(carrinho.length === 0) {
-        container.innerHTML = "<p style='text-align:center; margin-top:50px;'>Seu carrinho está vazio.</p>";
-        document.getElementById("resumoFinal").style.display = "none";
-        return;
-    }
-    document.getElementById("resumoFinal").style.display = "block";
-    let total = carrinho.reduce((sum, item) => sum + item.preco, 0);
-    document.getElementById("totalFinal").innerText = "R$ " + total.toFixed(2);
-    
-    container.innerHTML = carrinho.map((item, i) => `
-        <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
-            <span>${item.nome} - <b>R$ ${item.preco.toFixed(2)}</b></span>
-            <button class="btn-del" onclick="removerCarrinho(${i})">Remover</button>
-        </div>
-    `).join('');
+    let html = "";
+    carrinho.forEach((p, i) => {
+        html += `<div class="card" style="display:flex; justify-content:space-between; align-items:center;">
+            <div><b>${p.nome}</b><br>R$ ${p.preco.toFixed(2)}</div>
+            <button class="remove-btn" onclick="removerCarrinho(${i})">Remover</button>
+        </div>`;
+    });
+    document.getElementById("listaItensCarrinho").innerHTML = html || "<p style='text-align:center'>Seu carrinho está vazio</p>";
+    document.getElementById("cardPagamento").style.display = carrinho.length > 0 ? "block" : "none";
 }
 
-function removerCarrinho(i) {
-    carrinho.splice(i, 1);
-    renderizarCarrinho();
-    atualizarBotaoCarrinho();
-}
-
-function limparCarrinho() {
-    carrinho = [];
-    ir('home');
+function toggleTroco() {
+    let m = document.getElementById("metodoPagamento").value;
+    document.getElementById("divTroco").style.display = m === "Dinheiro" ? "block" : "none";
 }
 
 function finalizarPedido() {
-    let texto = `*Novo Pedido - ${config.nome}*\n\n`;
-    carrinho.forEach(item => texto += `- ${item.nome}: R$ ${item.preco.toFixed(2)}\n`);
-    let total = carrinho.reduce((sum, item) => sum + item.preco, 0);
-    texto += `\n*Total: R$ ${total.toFixed(2)}*`;
-    window.open(`https://wa.me/55?text=${encodeURIComponent(texto)}`);
+    let metodo = document.getElementById("metodoPagamento").value;
+    if(!metodo) return alert("Escolha a forma de pagamento");
+    
+    let total = carrinho.reduce((a, b) => a + b.preco, 0);
+    let msg = `*Novo Pedido - ${config.nome}*\n\n`;
+    carrinho.forEach(p => msg += `- ${p.nome}: R$ ${p.preco.toFixed(2)}\n`);
+    msg += `\n*Total:* R$ ${total.toFixed(2)}`;
+    msg += `\n*Pagamento:* ${metodo}`;
+    
+    if(metodo === "Dinheiro") {
+        let troco = document.getElementById("valorTroco").value;
+        msg += troco ? `\n*Troco para:* R$ ${troco}` : `\n*Sem necessidade de troco*`;
+    }
+    
+    window.open(`https://wa.me/55?text=${encodeURIComponent(msg)}`);
 }
+
+/* SISTEMA DA LOJA */
+function renderizarLoja() {  
+    document.getElementById("welcome").innerText = "Olá, " + (usuarios[sessaoAtiva]?.nome || "Cliente");  
+    const cats = ["Todos", "Açougue", "Bebida", "Limpeza", "Padaria", "Mercearia"];  
+    document.getElementById("catNav").innerHTML = cats.map(c => `<button class="cat-btn ${categoriaAtual === c ? 'active' : ''}" onclick="filtrar('${c}')">${c}</button>`).join('');  
+    
+    let pesquisa = document.getElementById("pesquisaLoja").value.toLowerCase();
+    let filtrados = categoriaAtual === "Todos" ? produtos : produtos.filter(p => p.cat === categoriaAtual);
+    if(pesquisa) filtrados = filtrados.filter(p => p.nome.toLowerCase().includes(pesquisa));
+
+    document.getElementById("listaLoja").innerHTML = filtrados.map((p, i) => {
+        // Encontrar o index original para o carrinho
+        let idxOriginal = produtos.indexOf(p);
+        return `<div class="card" style="text-align:center">  
+            <strong>${p.nome}</strong><br><span style="color:green">R$ ${p.preco.toFixed(2)}</span>
+            <button class="btn-main" onclick="addCarrinho(${idxOriginal})" style="margin-top:10px; padding:5px; font-size:12px;">+ Adicionar</button>
+        </div>`;
+    }).join('') || "Nenhum produto.";  
+}  
+
+function filtrar(c) { categoriaAtual = c; renderizarLoja(); }
 
 /* ADMIN SYSTEM */  
 function renderizarAdmin() {  
     document.getElementById("lista_usuarios_admin").innerHTML = Object.keys(usuarios).map(c => `  
         <div style="border-bottom:1px solid #eee; padding:5px"><b>${usuarios[c].nome}</b> | Senha: <b style="color:red">${usuarios[c].senha}</b></div>  
     `).join('');  
-    
     document.getElementById("lista_chats_admin").innerHTML = Object.keys(mensagens).map(c => `  
         <button onclick="abrirChatAdmin('${c}')" style="background:#eee; color:#333; margin-bottom:5px">Responder: ${usuarios[c]?.nome || c}</button>  
     `).join('') || "Sem mensagens.";
-
-    document.getElementById("admin_lista_produtos").innerHTML = produtos.map((p, i) => `
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px; font-size:13px; border-bottom: 1px solid #eee;">
-            <span>${p.nome} (R$ ${p.preco.toFixed(2)})</span>
-            <button class="btn-del" onclick="excluirProduto(${i})">X</button>
+    
+    document.getElementById("admin_lista_excluir").innerHTML = produtos.map((p, i) => `
+        <div style="display:flex; justify-content:space-between; margin-bottom:5px; font-size:12px">
+            <span>${p.nome}</span>
+            <button onclick="excluirProd(${i})" style="background:red; padding:2px 5px; width:auto">Excluir</button>
         </div>
     `).join('');
 }  
-  
+
 function addProduto() {  
     let n = document.getElementById("pNome").value;  
     let p = document.getElementById("pPreco").value;  
     let c = document.getElementById("pCat").value;  
-    if(!n || !p) return alert("Preencha o nome e o preço");
+    if(!n || !p) return;
     produtos.push({nome: n, preco: parseFloat(p), cat: c});  
     localStorage.setItem("m_prod", JSON.stringify(produtos));  
-    alert("Produto Adicionado!");  
     renderizarAdmin();  
+    alert("Produto Adicionado!");  
 }  
 
-function excluirProduto(index) {
-    if(confirm("Deseja realmente excluir este produto?")) {
-        produtos.splice(index, 1);
+function excluirProd(i) {
+    if(confirm("Excluir este produto?")) {
+        produtos.splice(i, 1);
         localStorage.setItem("m_prod", JSON.stringify(produtos));
         renderizarAdmin();
     }
 }
-  
+
 function salvarConfigSemRefresh() {  
     config.nome = document.getElementById("cfgNome").value || config.nome;  
     config.cor = document.getElementById("cfgCor").value;  
     localStorage.setItem("m_cfg", JSON.stringify(config));  
-    aplicarEstilos();  
-    alert("Configurações aplicadas com sucesso!");  
+    aplicarEstilos(); 
+    alert("Configurações aplicadas!");  
+}  
+  
+function voltarParaLogin() {  
+    sessaoAtiva = "";  
+    carrinho = [];
+    atualizarBarraCarrinho();
+    ir('login');  
 }  
 
-/* CHAT SYSTEM */  
+/* CHAT SYSTEM */
 function abrirSuporteVisitante() {  
     sessaoAtiva = "visitante_" + Math.floor(Math.random()*999);  
     clienteNoChat = sessaoAtiva;  
@@ -313,14 +335,12 @@ function abrirSuporteVisitante() {
     document.getElementById("chatTitulo").innerText = "Suporte Online";  
     ir('chat');  
 }  
-  
 function abrirChatAdmin(cpf) {  
     clienteNoChat = cpf;  
     modoAdminChat = true;  
     document.getElementById("chatTitulo").innerText = "Chat: " + (usuarios[cpf]?.nome || cpf);  
     ir('chat');  
 }  
-  
 function enviarMensagem() {  
     let input = document.getElementById("msg_input");  
     if(!input.value) return;  
@@ -331,7 +351,6 @@ function enviarMensagem() {
     input.value = "";  
     renderizarMensagens();  
 }  
-  
 function renderizarMensagens() {  
     let idChat = modoAdminChat ? clienteNoChat : sessaoAtiva;  
     let msgs = mensagens[idChat] || [];  
@@ -340,22 +359,12 @@ function renderizarMensagens() {
     `).join('');  
     document.getElementById("box_msgs").scrollTop = 9999;  
 }  
-  
 function voltarDoChat() {  
     if(modoAdminChat) ir('admin');  
     else if(sessaoAtiva.includes("visitante")) ir('login');  
     else ir('home');  
 }  
-  
-function voltarParaLogin() {  
-    sessaoAtiva = "";  
-    carrinho = [];
-    document.getElementById("lCpf").value = "";  
-    document.getElementById("lSenha").value = "";  
-    ir('login');  
-}  
-  
+
 window.onload = aplicarEstilos;  
-</script>  
-</body>  
+</script>  </body>  
 </html>
