@@ -128,6 +128,8 @@
             </select>  
             <button onclick="addProduto()" style="background:var(--admin-bg)">Cadastrar e Salvar</button>  
             <hr>
+            <h3>🔍 Gerenciar Produtos</h3>
+            <input type="text" id="pesquisaAdmin" placeholder="Procurar produto cadastrado..." oninput="renderizarAdmin()">
             <div id="admin_lista_excluir" style="margin-top:10px; max-height: 300px; overflow-y: auto;"></div>
         </div>  
         <div class="card">  
@@ -280,8 +282,12 @@ function renderizarAdmin() {
         <div style="border-bottom:1px solid #eee; padding:5px"><b>${usuarios[c].nome}</b> | Senha: <b style="color:red">${usuarios[c].senha}</b></div>  
     `).join('');  
     
-    document.getElementById("admin_lista_excluir").innerHTML = produtos.map((p, i) => {
+    let busca = document.getElementById("pesquisaAdmin").value.toLowerCase();
+    let listaFiltrada = busca ? produtos.filter(p => p.nome.toLowerCase().includes(busca)) : produtos;
+
+    document.getElementById("admin_lista_excluir").innerHTML = listaFiltrada.map((p) => {
         let lucro = p.liquido - p.bruto;
+        let indexOriginal = produtos.findIndex(item => item.id === p.id);
         return `
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; font-size:12px; border-bottom:1px solid #eee; padding-bottom:5px">
             <div>
@@ -289,9 +295,9 @@ function renderizarAdmin() {
                 B: R$ ${p.bruto.toFixed(2)} | L: R$ ${p.liquido.toFixed(2)} 
                 <span class="profit-badge">Lucro: R$ ${lucro.toFixed(2)}</span>
             </div>
-            <button onclick="excluirProd(${i})" style="background:red; padding:4px 8px; width:auto">Excluir</button>
+            <button onclick="excluirProd(${indexOriginal})" style="background:red; padding:4px 8px; width:auto">Excluir</button>
         </div>`;
-    }).join('');
+    }).join('') || "<p style='font-size:12px; color:#666'>Nenhum produto encontrado.</p>";
 }  
 
 function addProduto() {  
